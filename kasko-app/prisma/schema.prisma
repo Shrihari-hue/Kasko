@@ -1,0 +1,149 @@
+// Kasko data model — SQLite for local dev. Swap `provider` to "postgresql"
+// and set DATABASE_URL to your managed Postgres for staging/production.
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id          String   @id @default(cuid())
+  phone       String   @unique
+  name        String?
+  email       String?
+  createdAt   DateTime @default(now())
+
+  // Underwriting / limit
+  creditScore Int?     // last CIBIL score fetched
+  limit       Int      @default(0)   // sanctioned borrowing limit in INR
+  kycComplete Boolean  @default(false)
+
+  otps        OtpChallenge[]
+  consents    Consent[]
+  creditChecks CreditCheck[]
+  kycRecords  KycRecord[]
+  loans       Loan[]
+  transactions Transaction[]
+  limitHistory LimitHistory[]
+}
+
+model OtpChallenge {
+  id        String   @id @default(cuid())
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id])
+  phone     String
+  codeHash  String   // never store the raw OTP
+  expiresAt DateTime
+  consumed  Boolean  @default(false)
+  attempts  Int      @default(0)
+  createdAt DateTime @default(now())
+
+  @@index([phone])
+}
+
+// RBI Digital Lending: consent artifacts must be stored & retrievable.
+model Consent {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  kind      String   // "cibil_pull" | "kfs_accept" | "auto_debit"
+  payload   String?  // JSON snapshot of what the user agreed to
+  ipAddress String?
+  createdAt DateTime @default(now())
+
+  @@index([userId, kind])
+}
+
+model CreditCheck {
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id])
+  bureau     String   @default("CIBIL")
+  score      Int
+  band       String   // "thin" | "fair" | "good" | "excellent"
+  assignedLimit Int
+  raw        String?  // JSON from the bureau adapter
+  createdAt  DateTime @default(now())
+
+  @@index([userId])
+}
+
+model KycRecord {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  step      String   // "pan" | "aadhaar" | "selfie" | "bank"
+  status    String   @default("verified") // "pending" | "verified" | "failed"
+  reference String?  // vendor reference id
+  meta      String?  // JSON (masked) — never store full Aadhaar/PAN in clear
+  createdAt DateTime @default(now())
+
+  @@unique([userId, step])
+}
+
+model Loan {
+  id              String   @id @default(cuid())
+  userId          String
+  user            User     @relation(fields: [userId], references: [id])
+
+  principal       Int      // sanctioned amount (e.g. 1000)
+  interest        Int      // flat interest (e.g. 50)
+  processingFee   Int      // flat processing (e.g. 50)
+  netDisbursed    Int      // principal - interest - processing (e.g. 900)
+  repayAmount     Int      // principal due back (e.g. 1000)
+
+  status          String   @default("active") // "active" | "repaid" | "overdue" | "written_off"
+  disbursedAt     DateTime @default(now())
+  dueAt           DateTime
+  closedAt        DateTime?
+
+  lateFeeCharged  Int      @default(0)
+  lenderRef       String?  // NBFC loan id
+
+  repayments      Repayment[]
+  transactions    Transaction[]
+
+  @@index([userId, status])
+}
+
+model Repayment {
+  id        String   @id @default(cuid())
+  loanId    String
+  loan      Loan     @relation(fields: [loanId], references: [id])
+  amount    Int
+  method    String   // "upi" | "auto_debit" | "qr"
+  status    String   @default("success") // "pending" | "success" | "failed"
+  upiRef    String?
+  createdAt DateTime @default(now())
+
+  @@index([loanId])
+}
+
+model Transaction {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  loanId    String?
+  loan      Loan?    @relation(fields: [loanId], references: [id])
+  type      String   // "disbursal" | "repayment" | "late_fee"
+  amount    Int      // positive = money to user, negative = money from user
+  note      String?
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+}
+
+model LimitHistory {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  oldLimit  Int
+  newLimit  Int
+  reason    String   // "credit_check" | "on_time_repayment" | "default"
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+}

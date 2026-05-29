@@ -1,0 +1,43 @@
+{
+  "expo": {
+    "name": "Kasko",
+    "slug": "kasko",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "scheme": "kasko",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "backgroundColor": "#0F1419",
+      "resizeMode": "contain"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.kasko.app"
+    },
+    "android": {
+      "package": "com.kasko.app",
+      "adaptiveIcon": {
+        "backgroundColor": "#0F1419"
+      }
+    },
+    "plugins": [
+      "expo-router",
+      "expo-secure-store",
+      "expo-font"
+    ],
+    "experiments": {
+      "typedRoutes": true
+    },
+    "extra": {
+      "eas": {
+        "projectId": "330b431f-7513-4a36-bd03-4a8e6eff995a"
+      },
+      "router": {
+        "origin": false
+      }
+    }
+  }
+}

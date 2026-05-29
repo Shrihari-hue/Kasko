@@ -1,5 +1,9 @@
 {
   "appId": "com.kasko.app",
   "appName": "Kasko",
-  "webDir": "out"
+  "webDir": "www",
+  "server": {
+    "url": "https://REPLACE-WITH-YOUR-RAILWAY-URL.up.railway.app",
+    "cleartext": false
+  }
 }
