@@ -1,0 +1,1510 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Kasko — premium short-term cash advance</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@300;400;500;600;700;800;900&family=Inter+Tight:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        paper:      "#FAFAF7",
+        paperWarm:  "#F4F1EC",
+        surface:    "#FFFFFF",
+        ink:        "#0F1419",
+        ink2:       "#404652",
+        ink3:       "#6B7280",
+        ink4:       "#9CA3AF",
+        line:       "#E8E4DC",
+        line2:      "#EFEBE3",
+        forest:     "#1B5E3F",
+        forestDeep: "#0E4329",
+        mint:       "#E8F3EE",
+        mintDeep:   "#C9E4D4",
+        gold:       "#B8915C",
+        goldSoft:   "#F5EBDA",
+        rust:       "#C8553D",
+        rustSoft:   "#FBE9E4",
+        amber:      "#D9A441",
+        amberSoft:  "#FBF1DC",
+      },
+      fontFamily: {
+        display: ['"Fraunces"', "serif"],
+        sans:    ['"Inter"', "system-ui", "sans-serif"],
+        tight:   ['"Inter Tight"', '"Inter"', "system-ui", "sans-serif"],
+      },
+      letterSpacing: {
+        tightest: "-0.04em",
+        tighter:  "-0.025em",
+      },
+    }
+  }
+}
+</script>
+
+<style>
+  :root { color-scheme: light; }
+  html, body { background: #EDEAE3; }
+  body {
+    font-family: 'Inter', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-feature-settings: "ss01","ss02","cv11","cv02","tnum";
+  }
+  .num { font-variant-numeric: tabular-nums; }
+
+  /* Subtle paper grain on outer chrome */
+  .grain::before{
+    content:"";
+    position:absolute; inset:0;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%25' height='100%25' filter='url(%23n)' opacity='0.4'/></svg>");
+    opacity:.35; mix-blend-mode:multiply; pointer-events:none;
+  }
+
+  /* Phone frame */
+  .phone {
+    width: 100%;
+    max-width: 412px;
+    height: 880px;
+    background: #FAFAF7;
+    border-radius: 44px;
+    box-shadow:
+      0 0 0 12px #0F1419,
+      0 0 0 13px #2A2F38,
+      0 24px 60px -10px rgba(15,20,25,.28),
+      0 60px 120px -20px rgba(15,20,25,.18);
+    position: relative;
+    overflow: hidden;
+  }
+  .phone-notch {
+    position:absolute; top: 10px; left: 50%; transform: translateX(-50%);
+    width: 110px; height: 30px; background:#0F1419; border-radius: 999px; z-index: 60;
+  }
+  .scroll-shell { height: 100%; overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling: touch; padding-bottom: 28px; }
+  .scroll-shell::-webkit-scrollbar { display: none; }
+
+  /* Status bar fake */
+  .statusbar {
+    height: 50px; padding: 0 28px;
+    display:flex; align-items:flex-end; justify-content:space-between;
+    padding-bottom: 10px;
+    font-weight: 600; font-size: 14px;
+  }
+
+  /* Buttons */
+  .btn {
+    display:inline-flex; align-items:center; justify-content:center; gap:10px;
+    padding: 18px 24px; border-radius: 999px; font-weight: 600; font-size: 15px;
+    transition: transform .15s ease, background .2s ease, box-shadow .2s ease;
+    user-select: none;
+  }
+  .btn:active { transform: scale(0.985); }
+  .btn-primary { background:#0F1419; color:#FAFAF7; box-shadow: 0 8px 20px -8px rgba(15,20,25,.45); }
+  .btn-primary:hover { background:#1A1F2E; }
+  .btn-primary[disabled] { background:#E8E4DC; color:#9CA3AF; box-shadow:none; cursor:not-allowed; }
+  .btn-forest { background:#1B5E3F; color:#FAFAF7; box-shadow: 0 8px 20px -8px rgba(27,94,63,.45); }
+  .btn-forest:hover { background:#0E4329; }
+  .btn-ghost { background:transparent; color:#0F1419; }
+  .btn-soft { background:#F4F1EC; color:#0F1419; }
+
+  /* Card surfaces */
+  .card {
+    background:#FFFFFF; border:1px solid #EFEBE3; border-radius: 22px;
+    box-shadow: 0 1px 0 rgba(15,20,25,.02), 0 8px 24px -16px rgba(15,20,25,.08);
+  }
+  .card-flat { background:#FFFFFF; border:1px solid #EFEBE3; border-radius: 18px; }
+
+  /* Input */
+  .field {
+    background:#F4F1EC; border:1.5px solid transparent; border-radius: 18px;
+    padding: 18px 18px; font-size: 16px; width: 100%; color:#0F1419;
+    transition: border-color .15s ease, background .15s ease;
+  }
+  .field:focus { outline: none; background:#FFFFFF; border-color:#0F1419; }
+  .field::placeholder { color:#9CA3AF; }
+
+  /* OTP boxes */
+  .otp-box {
+    width: 46px; height: 56px; border-radius: 14px; background:#F4F1EC;
+    text-align:center; font-size: 22px; font-weight: 700; color:#0F1419;
+    border: 1.5px solid transparent;
+    font-variant-numeric: tabular-nums;
+  }
+  .otp-box:focus { outline:none; border-color:#0F1419; background:#FFFFFF; }
+
+  /* Slider */
+  input[type=range].kasko-slider {
+    -webkit-appearance: none; appearance: none;
+    width: 100%; height: 6px; background: #E8E4DC; border-radius:999px; outline:none;
+  }
+  input[type=range].kasko-slider::-webkit-slider-thumb {
+    -webkit-appearance: none; appearance: none;
+    width: 28px; height: 28px; border-radius:999px; background:#0F1419;
+    border: 4px solid #FAFAF7;
+    box-shadow: 0 4px 10px -2px rgba(15,20,25,.4);
+    cursor: pointer;
+  }
+  input[type=range].kasko-slider::-moz-range-thumb {
+    width: 28px; height: 28px; border-radius:999px; background:#0F1419;
+    border: 4px solid #FAFAF7;
+    box-shadow: 0 4px 10px -2px rgba(15,20,25,.4);
+    cursor: pointer;
+  }
+
+  /* Toggle */
+  .toggle { position: relative; width: 44px; height: 26px; background:#E8E4DC; border-radius:999px; transition: background .2s ease; cursor: pointer; }
+  .toggle.on { background:#1B5E3F; }
+  .toggle::after {
+    content:""; position:absolute; top:3px; left:3px; width:20px; height:20px; background:#FFF;
+    border-radius:999px; transition: transform .2s ease;
+    box-shadow: 0 2px 4px rgba(15,20,25,.2);
+  }
+  .toggle.on::after { transform: translateX(18px); }
+
+  /* Animations */
+  @keyframes fadeInUp { from { opacity:0; transform: translateY(12px); } to { opacity:1; transform: translateY(0); } }
+  .anim-in { animation: fadeInUp .35s cubic-bezier(.2,.7,.2,1) both; }
+  @keyframes scaleIn { from { opacity:0; transform: scale(.85); } to { opacity:1; transform: scale(1); } }
+  .pop-in { animation: scaleIn .45s cubic-bezier(.2,.9,.3,1.4) both; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .spin { animation: spin 1s linear infinite; }
+  @keyframes drawCheck { to { stroke-dashoffset: 0; } }
+  .check-path { stroke-dasharray: 60; stroke-dashoffset: 60; animation: drawCheck .5s ease-out .15s forwards; }
+  @keyframes pulseDot { 0%,100% { opacity:.4 } 50% { opacity:1 } }
+  .pulse-dot { animation: pulseDot 1.2s ease-in-out infinite; }
+
+  /* Sheet */
+  .sheet-backdrop { background: rgba(15,20,25,.45); backdrop-filter: blur(4px); }
+  @keyframes sheetUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+  .sheet { animation: sheetUp .35s cubic-bezier(.2,.8,.2,1); }
+
+  /* Bottom nav */
+  .nav-item { display:flex; flex-direction:column; align-items:center; gap:3px; padding: 6px 14px; color:#9CA3AF; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: .04em; }
+  .nav-item.active { color:#0F1419; }
+  .nav-item.active .nav-dot { opacity: 1; }
+  .nav-dot { width: 4px; height: 4px; border-radius:999px; background:#0F1419; opacity: 0; margin-top: 2px; }
+
+  /* Eyebrow label */
+  .eyebrow { text-transform: uppercase; letter-spacing: .14em; font-size: 11px; font-weight: 600; color:#6B7280; }
+
+  /* Helpers */
+  .divider { height: 1px; background: #EFEBE3; }
+  .num-display { font-family: 'Fraunces', serif; font-weight: 500; letter-spacing: -.02em; }
+</style>
+</head>
+<body class="text-ink antialiased">
+
+<div id="root"></div>
+
+<script type="text/babel" data-presets="env,react">
+const { useState, useEffect, useMemo, useRef } = React;
+
+/* ─────────── ICONS (inline SVG) ─────────── */
+const I = {
+  ArrowLeft:   p => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}><path d="M19 12H5M12 19l-7-7 7-7"/></svg>,
+  ArrowRight:  p => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}><path d="M5 12h14M12 5l7 7-7 7"/></svg>,
+  ChevronRight:p => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" {...p}><polyline points="9 18 15 12 9 6"/></svg>,
+  ChevronDown: p => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}><polyline points="6 9 12 15 18 9"/></svg>,
+  Check:       p => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" {...p}><polyline points="20 6 9 17 4 12"/></svg>,
+  X:           p => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}><path d="M18 6 6 18M6 6l12 12"/></svg>,
+  Info:        p => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>,
+  Alert:       p => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>,
+  Lock:        p => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>,
+  Shield:      p => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>,
+  Card:        p => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>,
+  Doc:         p => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="15" y2="17"/></svg>,
+  IdCard:      p => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="11" r="2"/><path d="M14 9h4M14 13h4M5.5 17.5c.7-1.3 2-2 3.5-2s2.8.7 3.5 2"/></svg>,
+  Camera:      p => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>,
+  Bank:        p => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}><path d="M3 21h18M3 10h18M5 6l7-4 7 4M4 10v11M20 10v11M8 14v3M12 14v3M16 14v3"/></svg>,
+  Home:        p => <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>,
+  Clock:       p => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>,
+  Trending:    p => <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>,
+  User:        p => <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>,
+  Help:        p => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>,
+  Phone:       p => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>,
+  Mail:        p => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}><path d="M4 4h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>,
+  Chat:        p => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>,
+  QR:          p => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3h-3zM20 14h1v1M14 20h1v1M17 17v4h4v-4"/></svg>,
+  Copy:        p => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>,
+  Search:      p => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>,
+  Logout:      p => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>,
+  Bell:        p => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 0 1-3.46 0"/></svg>,
+  Plus:        p => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" {...p}><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>,
+  Sparkle:     p => <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" {...p}><path d="M12 2l1.8 5.4L19 9l-5.2 1.6L12 16l-1.8-5.4L5 9l5.2-1.6L12 2zm7 13l.8 2.4 2.2.6-2.2.6-.8 2.4-.8-2.4-2.2-.6 2.2-.6L19 15z"/></svg>,
+  Filter:      p => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>,
+  Up:          p => <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" {...p}><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg>,
+  Down:        p => <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" {...p}><line x1="17" y1="7" x2="7" y2="17"/><polyline points="17 17 7 17 7 7"/></svg>,
+};
+
+/* ─────────── HELPERS ─────────── */
+const fmtINR = (n) => "₹" + Number(n).toLocaleString("en-IN");
+const tomorrow = () => {
+  const d = new Date(); d.setDate(d.getDate() + 1);
+  return d.toLocaleDateString("en-IN", { day:"2-digit", month:"short", year:"numeric"});
+};
+
+/* ─────────── PHONE FRAME ─────────── */
+function PhoneFrame({ children, dark = false }) {
+  return (
+    <div className="phone relative" style={{ background: dark ? "#0F1419" : "#FAFAF7" }}>
+      <div className="phone-notch"></div>
+      <div className="scroll-shell">
+        <div className="statusbar" style={{ color: dark ? "#FAFAF7" : "#0F1419" }}>
+          <span className="num">9:41</span>
+          <div className="flex items-center gap-1.5">
+            <span style={{ fontSize:10 }}>•••</span>
+            <span style={{ fontSize:11, fontWeight: 700 }}>5G</span>
+            <div style={{ width:22, height:11, border:`1.5px solid ${dark?"#FAFAF7":"#0F1419"}`, borderRadius:3, position:"relative" }}>
+              <div style={{ position:"absolute", inset:1.5, background: dark?"#FAFAF7":"#0F1419", width:"75%", borderRadius:1 }}></div>
+            </div>
+          </div>
+        </div>
+        {children}
+      </div>
+    </div>
+  );
+}
+
+/* ─────────── REUSABLE BITS ─────────── */
+function TopBar({ title, onBack, right }) {
+  return (
+    <div className="flex items-center justify-between px-5 pt-1 pb-4">
+      {onBack ? (
+        <button onClick={onBack} className="w-10 h-10 rounded-full bg-paperWarm flex items-center justify-center active:scale-95 transition">
+          <I.ArrowLeft />
+        </button>
+      ) : <div className="w-10"></div>}
+      <div className="font-semibold text-base tracking-tight">{title}</div>
+      <div className="w-10 flex justify-end">{right || null}</div>
+    </div>
+  );
+}
+
+function Logo({ size = 32, dark = false }) {
+  return (
+    <div className="flex items-center gap-2.5">
+      <div
+        className="flex items-center justify-center font-display"
+        style={{
+          width: size, height: size, borderRadius: size/3.2,
+          background: dark ? "#FAFAF7" : "#0F1419",
+          color: dark ? "#0F1419" : "#FAFAF7",
+          fontWeight: 700, fontSize: size*0.6, lineHeight: 1,
+        }}>K</div>
+      <span className="font-display text-[26px] font-medium tracking-tight" style={{ color: dark ? "#FAFAF7" : "#0F1419" }}>
+        Kasko
+      </span>
+    </div>
+  );
+}
+
+function BottomNav({ active, go }) {
+  const items = [
+    { id:"dashboard", label:"Home",    Icon: I.Home },
+    { id:"history",   label:"Activity",Icon: I.Clock },
+    { id:"profile",   label:"Profile", Icon: I.User },
+    { id:"help",      label:"Help",    Icon: I.Help },
+  ];
+  return (
+    <div className="absolute bottom-0 left-0 right-0 px-4 pb-3 pt-2"
+      style={{ background:"rgba(250,250,247,0.92)", backdropFilter:"blur(10px)", borderTop:"1px solid #EFEBE3" }}>
+      <div className="flex items-center justify-around">
+        {items.map(it => {
+          const isActive = active === it.id;
+          return (
+            <button key={it.id} onClick={()=>go(it.id)} className={`nav-item ${isActive ? "active" : ""}`}>
+              <it.Icon style={{ width:22, height:22 }} />
+              <span>{it.label}</span>
+              <div className="nav-dot"></div>
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════
+   SCREENS
+   ═══════════════════════════════════════════ */
+
+/* 1. SPLASH */
+function SplashScreen({ go }) {
+  useEffect(() => { const t = setTimeout(()=>go("login"), 1800); return () => clearTimeout(t); }, []);
+  return (
+    <PhoneFrame dark>
+      <div className="relative" style={{ height: 800 }}>
+        <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-10">
+          <div className="pop-in flex flex-col items-center">
+            <Logo size={56} dark />
+          </div>
+          <div className="anim-in mt-6" style={{ animationDelay:".3s" }}>
+            <p className="text-paper/60 text-sm tracking-tight">Money when you need it.</p>
+          </div>
+        </div>
+        <div className="absolute bottom-12 left-0 right-0 flex flex-col items-center gap-3 text-paper/40 anim-in" style={{ animationDelay: ".7s"}}>
+          <I.Shield style={{ width:14, height:14 }} />
+          <p className="text-[10px] tracking-[0.18em] uppercase">RBI-regulated • NBFC partner</p>
+        </div>
+      </div>
+    </PhoneFrame>
+  );
+}
+
+/* 2. LOGIN — phone entry */
+function LoginScreen({ go, state, set }) {
+  const valid = state.phone && state.phone.replace(/\D/g,"").length === 10;
+  return (
+    <PhoneFrame>
+      <div className="px-6 pt-2 pb-10 anim-in">
+        <Logo />
+        <div className="mt-14">
+          <p className="eyebrow mb-3">Step 1 of 2</p>
+          <h1 className="font-display text-[34px] leading-[1.05] tracking-tighter">Welcome.<br/>Let's get you in.</h1>
+          <p className="text-ink3 mt-3 text-[15px] leading-relaxed">We'll send a one-time code to your mobile to verify it's really you.</p>
+        </div>
+
+        <div className="mt-10">
+          <label className="eyebrow">Mobile number</label>
+          <div className="mt-3 flex items-stretch gap-2">
+            <div className="field flex items-center justify-center w-[80px] font-semibold num">+91</div>
+            <input
+              type="tel" inputMode="numeric" maxLength="10"
+              className="field flex-1 num tracking-tight"
+              placeholder="98765 43210"
+              value={state.phone || ""}
+              onChange={e => set({...state, phone: e.target.value.replace(/\D/g,"")})}
+            />
+          </div>
+        </div>
+
+        <button
+          disabled={!valid}
+          onClick={()=>go("otp")}
+          className="btn btn-primary w-full mt-8">
+          Send verification code <I.ArrowRight />
+        </button>
+
+        <div className="mt-10 flex items-start gap-2.5 text-[12px] text-ink3 leading-relaxed">
+          <I.Lock style={{ marginTop: 2, flexShrink: 0 }} />
+          <span>By continuing you agree to Kasko's <u>Terms of Service</u> and <u>Privacy Policy</u>. We never share your number.</span>
+        </div>
+      </div>
+    </PhoneFrame>
+  );
+}
+
+/* 3. OTP */
+function OtpScreen({ go, state }) {
+  const [digits, setDigits] = useState(["","","","","",""]);
+  const [timer, setTimer] = useState(45);
+  const refs = useRef([]);
+
+  useEffect(()=>{
+    if (timer > 0) { const t = setTimeout(()=>setTimer(timer-1), 1000); return ()=>clearTimeout(t); }
+  }, [timer]);
+
+  const filled = digits.every(d => d !== "");
+  useEffect(()=>{ if (filled) setTimeout(()=>go("consent"), 600); }, [filled]);
+
+  const update = (i, v) => {
+    const val = v.replace(/\D/g,"").slice(-1);
+    const next = [...digits]; next[i] = val;
+    setDigits(next);
+    if (val && refs.current[i+1]) refs.current[i+1].focus();
+  };
+  const keyHandler = (i, e) => {
+    if (e.key === "Backspace" && !digits[i] && refs.current[i-1]) refs.current[i-1].focus();
+  };
+
+  const masked = state.phone ? `+91 ${state.phone.slice(0,2)}··· ··${state.phone.slice(-2)}` : "+91 ··· ··· ··10";
+
+  return (
+    <PhoneFrame>
+      <TopBar onBack={()=>go("login")} title="" />
+      <div className="px-6 anim-in">
+        <p className="eyebrow mb-3">Step 2 of 2</p>
+        <h1 className="font-display text-[30px] leading-[1.1] tracking-tighter">Enter the 6-digit code we sent to {masked}</h1>
+
+        <div className="mt-10 flex justify-between gap-2">
+          {digits.map((d,i)=>(
+            <input key={i}
+              ref={el => refs.current[i] = el}
+              className="otp-box"
+              inputMode="numeric" maxLength="1"
+              value={d}
+              onChange={e=>update(i, e.target.value)}
+              onKeyDown={e=>keyHandler(i,e)}
+              autoFocus={i===0}
+            />
+          ))}
+        </div>
+
+        {filled && (
+          <div className="mt-8 flex items-center justify-center gap-3 text-ink3 text-sm anim-in">
+            <svg className="spin" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>
+            Verifying…
+          </div>
+        )}
+
+        <div className="mt-10 text-center text-sm text-ink3">
+          {timer > 0 ? <>Resend code in <span className="font-semibold text-ink num">{timer}s</span></>
+                    : <button className="underline font-semibold text-ink">Resend code</button>}
+        </div>
+
+        <div className="mt-12 px-5 py-4 rounded-2xl bg-paperWarm flex items-start gap-3">
+          <I.Info style={{ marginTop:2, flexShrink:0, color: "#404652" }}/>
+          <p className="text-[12px] text-ink2 leading-relaxed">
+            Use code <span className="font-mono font-semibold bg-white px-1.5 py-0.5 rounded">123456</span> to continue this demo.
+          </p>
+        </div>
+      </div>
+    </PhoneFrame>
+  );
+}
+
+/* 4. CIBIL CONSENT */
+function ConsentScreen({ go, state, set }) {
+  const [agree1, setAgree1] = useState(false);
+  const [agree2, setAgree2] = useState(false);
+  const can = agree1 && agree2;
+  return (
+    <PhoneFrame>
+      <TopBar onBack={()=>go("otp")} title="Consent" />
+      <div className="px-6 pb-6 anim-in">
+        <div className="w-14 h-14 rounded-2xl bg-mint flex items-center justify-center mb-5">
+          <I.Shield style={{ width:24, height:24, color:"#1B5E3F" }} />
+        </div>
+        <h1 className="font-display text-[28px] leading-[1.1] tracking-tighter">A quick credit check, with your permission.</h1>
+        <p className="text-ink3 mt-3 text-[15px] leading-relaxed">
+          Before we lend, we check your CIBIL score. This helps us offer you the right limit at the right cost.
+        </p>
+
+        <div className="card mt-6 p-5">
+          <p className="eyebrow mb-3">What we'll do</p>
+          <ul className="space-y-3">
+            {[
+              ["Fetch your CIBIL score","From TransUnion CIBIL, India's RBI-regulated bureau."],
+              ["Check your repayment history","To set your borrowing limit and interest fairly."],
+              ["Run a soft inquiry","This does not hurt your credit score."],
+            ].map(([t,d])=>(
+              <li key={t} className="flex items-start gap-3">
+                <div className="w-6 h-6 rounded-full bg-mint flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <I.Check style={{ width:12, height:12, color:"#1B5E3F" }}/>
+                </div>
+                <div>
+                  <p className="font-semibold text-[14px]">{t}</p>
+                  <p className="text-[12px] text-ink3 leading-relaxed">{d}</p>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <div className="mt-5 space-y-3">
+          <label className="flex items-start gap-3 cursor-pointer p-4 rounded-2xl border border-line bg-surface" onClick={()=>setAgree1(!agree1)}>
+            <div className="mt-0.5">
+              <div className={`w-5 h-5 rounded-md flex items-center justify-center transition ${agree1?"bg-ink":"bg-paperWarm border border-line"}`}>
+                {agree1 && <I.Check style={{ width:12, height:12, color:"#FAFAF7" }}/>}
+              </div>
+            </div>
+            <span className="text-[13px] leading-relaxed text-ink2">I authorize Kasko to fetch my CIBIL credit information for the purpose of underwriting this loan application.</span>
+          </label>
+          <label className="flex items-start gap-3 cursor-pointer p-4 rounded-2xl border border-line bg-surface" onClick={()=>setAgree2(!agree2)}>
+            <div className="mt-0.5">
+              <div className={`w-5 h-5 rounded-md flex items-center justify-center transition ${agree2?"bg-ink":"bg-paperWarm border border-line"}`}>
+                {agree2 && <I.Check style={{ width:12, height:12, color:"#FAFAF7" }}/>}
+              </div>
+            </div>
+            <span className="text-[13px] leading-relaxed text-ink2">I confirm the mobile number, name, and details I provide belong to me and are accurate.</span>
+          </label>
+        </div>
+
+        <button disabled={!can} onClick={()=>{ set({...state, consented:true}); go("kyc"); }} className="btn btn-primary w-full mt-6">
+          Authorize & continue <I.ArrowRight />
+        </button>
+        <button className="btn btn-ghost w-full mt-1 text-ink3">Not now</button>
+      </div>
+    </PhoneFrame>
+  );
+}
+
+/* 5. KYC — 4 progressive steps */
+function KycScreen({ go, state, set }) {
+  const steps = [
+    { key:"pan",     title:"PAN card",         desc:"For tax identity verification.",        Icon: I.Doc },
+    { key:"aadhaar", title:"Aadhaar e-KYC",    desc:"Verify name & address via UIDAI.",      Icon: I.IdCard },
+    { key:"selfie",  title:"Selfie",           desc:"A quick live photo to match your ID.",  Icon: I.Camera },
+    { key:"bank",    title:"Bank account",     desc:"For instant disbursement & repayment.", Icon: I.Bank },
+  ];
+  const [done, setDone] = useState(state.kyc || {});
+  const [active, setActive] = useState(null);
+
+  const completed = steps.filter(s => done[s.key]).length;
+  const allDone = completed === steps.length;
+
+  function complete(key) {
+    const next = { ...done, [key]: true };
+    setDone(next); setActive(null);
+    set({...state, kyc: next });
+  }
+
+  return (
+    <PhoneFrame>
+      <TopBar onBack={()=>go("consent")} title="Verify your identity" />
+      <div className="px-6 anim-in">
+        <p className="eyebrow">Required by RBI</p>
+        <h1 className="font-display text-[28px] mt-1 leading-[1.1] tracking-tighter">{completed === 0 ? "4 quick steps." : `${completed} of 4 done.`}</h1>
+        <p className="text-ink3 mt-2 text-[14px]">Takes about 3 minutes. You can pause and resume.</p>
+
+        {/* progress bar */}
+        <div className="mt-6 h-1.5 rounded-full bg-line2 overflow-hidden">
+          <div className="h-full bg-forest transition-all" style={{ width: `${(completed/4)*100}%` }}></div>
+        </div>
+
+        <div className="mt-6 space-y-3">
+          {steps.map((s, i) => {
+            const isDone = !!done[s.key];
+            return (
+              <button key={s.key}
+                onClick={()=>!isDone && setActive(s.key)}
+                className={`w-full text-left card p-4 flex items-center gap-4 transition active:scale-[0.99] ${isDone ? "opacity-90" : ""}`}>
+                <div className={`w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0
+                  ${isDone ? "bg-mint" : "bg-paperWarm"}`}>
+                  {isDone ? <I.Check style={{ width:18, height:18, color:"#1B5E3F" }}/> : <s.Icon style={{ color:"#0F1419" }}/>}
+                </div>
+                <div className="flex-1">
+                  <p className="font-semibold text-[15px]">{s.title}</p>
+                  <p className="text-[12px] text-ink3 mt-0.5">{isDone ? "Verified" : s.desc}</p>
+                </div>
+                {!isDone && <I.ChevronRight style={{ color:"#9CA3AF" }} />}
+              </button>
+            );
+          })}
+        </div>
+
+        <button disabled={!allDone} onClick={()=>go("dashboard")} className="btn btn-primary w-full mt-8">
+          {allDone ? <>Open my account <I.ArrowRight /></> : <>Complete all 4 steps</>}
+        </button>
+      </div>
+
+      {/* KYC step sheet */}
+      {active && <KycSheet stepKey={active} onClose={()=>setActive(null)} onComplete={complete} />}
+    </PhoneFrame>
+  );
+}
+
+function KycSheet({ stepKey, onClose, onComplete }) {
+  const config = {
+    pan:     { title:"PAN card",      placeholder:"ABCDE1234F",          label:"Enter your 10-character PAN" },
+    aadhaar: { title:"Aadhaar e-KYC", placeholder:"1234 5678 9012",      label:"Enter your 12-digit Aadhaar number" },
+    selfie:  { title:"Live selfie",   isPhoto: true },
+    bank:    { title:"Bank account",  placeholder:"123456789012",        label:"Account number" },
+  };
+  const cfg = config[stepKey];
+  const [val, setVal] = useState("");
+  const [photoTaken, setPhotoTaken] = useState(false);
+
+  const valid = cfg.isPhoto ? photoTaken : val.length >= 4;
+
+  return (
+    <div className="absolute inset-0 z-50 flex items-end sheet-backdrop" onClick={onClose}>
+      <div className="bg-paper w-full rounded-t-[28px] p-6 sheet" onClick={e=>e.stopPropagation()}>
+        <div className="w-12 h-1 rounded-full bg-line mx-auto mb-4"></div>
+        <h2 className="font-display text-[24px] leading-tight tracking-tighter">{cfg.title}</h2>
+
+        {cfg.isPhoto ? (
+          <div className="mt-5">
+            <div className="aspect-square rounded-3xl bg-paperWarm flex items-center justify-center relative overflow-hidden">
+              {!photoTaken ? (
+                <div className="flex flex-col items-center text-ink3">
+                  <I.Camera style={{ width:36, height:36 }}/>
+                  <p className="text-xs mt-2">Camera preview</p>
+                </div>
+              ) : (
+                <div className="flex flex-col items-center text-forest pop-in">
+                  <div className="w-16 h-16 rounded-full bg-mint flex items-center justify-center">
+                    <I.Check style={{ width:30, height:30, color:"#1B5E3F" }}/>
+                  </div>
+                  <p className="text-sm mt-3 font-semibold">Captured</p>
+                </div>
+              )}
+              <div className="absolute inset-6 border-2 border-paper/70 rounded-full pointer-events-none"></div>
+            </div>
+            <p className="text-xs text-ink3 text-center mt-4 leading-relaxed">Make sure your face is well-lit and centered in the frame.</p>
+            {!photoTaken
+              ? <button onClick={()=>setPhotoTaken(true)} className="btn btn-primary w-full mt-5">Capture selfie</button>
+              : <button onClick={()=>onComplete(stepKey)} className="btn btn-forest w-full mt-5">Use this photo <I.Check style={{width:16,height:16}}/></button>}
+          </div>
+        ) : (
+          <div className="mt-5">
+            <label className="eyebrow">{cfg.label}</label>
+            <input
+              className="field mt-3 tracking-wider uppercase"
+              placeholder={cfg.placeholder}
+              value={val} onChange={e=>setVal(e.target.value)}
+              autoFocus
+            />
+            {stepKey === "aadhaar" && (
+              <div className="mt-4 flex items-start gap-2 text-[12px] text-ink3">
+                <I.Shield style={{ marginTop: 1, flexShrink: 0 }}/>
+                <p>You'll receive an OTP from UIDAI on your Aadhaar-linked number.</p>
+              </div>
+            )}
+            {stepKey === "bank" && (
+              <div className="mt-4">
+                <label className="eyebrow">IFSC code</label>
+                <input className="field mt-3 tracking-wider uppercase" placeholder="HDFC0001234"/>
+              </div>
+            )}
+            <button disabled={!valid} onClick={()=>onComplete(stepKey)} className="btn btn-primary w-full mt-6">
+              Verify <I.Check style={{ width:16, height:16 }}/>
+            </button>
+          </div>
+        )}
+
+        <button onClick={onClose} className="btn btn-ghost w-full mt-1 text-ink3">Cancel</button>
+      </div>
+    </div>
+  );
+}
+
+/* 6. DASHBOARD */
+function DashboardScreen({ go, state }) {
+  const limit = state.limit || 1000;
+  const outstanding = state.outstanding || 0;
+  const hasLoan = outstanding > 0;
+
+  return (
+    <PhoneFrame>
+      <div className="pb-32">
+        {/* Header */}
+        <div className="px-6 pt-3 flex items-center justify-between">
+          <div>
+            <p className="text-[13px] text-ink3">Good morning</p>
+            <p className="font-semibold text-[18px] tracking-tight">Shree</p>
+          </div>
+          <button className="w-10 h-10 rounded-full bg-paperWarm flex items-center justify-center relative">
+            <I.Bell />
+            <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-rust"></span>
+          </button>
+        </div>
+
+        {/* Hero limit card */}
+        <div className="mx-5 mt-5 rounded-[28px] relative overflow-hidden anim-in"
+          style={{ background:"linear-gradient(180deg, #0F1419 0%, #1A2030 100%)", padding:"28px 24px 24px" }}>
+          <div className="grain absolute inset-0"></div>
+          <p className="text-paper/55 text-[11px] tracking-[0.18em] uppercase font-semibold relative">Available to borrow</p>
+          <div className="flex items-baseline gap-1 mt-2 relative">
+            <span className="text-paper/60 font-display text-[28px]">₹</span>
+            <span className="text-paper font-display text-[60px] leading-none tracking-tighter num">{limit.toLocaleString("en-IN")}</span>
+          </div>
+          <p className="text-paper/55 text-[12px] mt-1 relative">CIBIL 742 · Limit refreshed today</p>
+
+          <button onClick={()=>go("borrow")} className="relative mt-7 w-full bg-paper text-ink py-4 rounded-full font-semibold flex items-center justify-center gap-2 active:scale-[0.98] transition">
+            Borrow now <I.ArrowRight />
+          </button>
+
+          {/* shimmer accent */}
+          <div className="absolute -top-20 -right-20 w-60 h-60 rounded-full" style={{ background:"radial-gradient(circle, rgba(184,145,92,.18) 0%, transparent 70%)" }}></div>
+        </div>
+
+        {/* Outstanding card (if loan) */}
+        {hasLoan && (
+          <div className="mx-5 mt-3 card p-4 flex items-center justify-between active:scale-[0.99] transition" onClick={()=>go("repayment")}>
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-amberSoft flex items-center justify-center">
+                <I.Clock style={{ color:"#D9A441" }}/>
+              </div>
+              <div>
+                <p className="text-[12px] text-ink3">Repay before midnight</p>
+                <p className="font-semibold tracking-tight num">₹{outstanding.toLocaleString("en-IN")}</p>
+              </div>
+            </div>
+            <I.ChevronRight style={{ color:"#9CA3AF" }}/>
+          </div>
+        )}
+
+        {/* Quick actions */}
+        <div className="px-5 mt-6">
+          <div className="grid grid-cols-3 gap-3">
+            {[
+              ["Borrow",   I.Plus,     ()=>go("borrow")],
+              ["Repay",    I.Up,       ()=>go("repayment")],
+              ["History",  I.Clock,    ()=>go("history")],
+            ].map(([label, Icon, fn]) => (
+              <button key={label} onClick={fn} className="card-flat py-4 flex flex-col items-center gap-2 active:scale-[0.97] transition">
+                <div className="w-9 h-9 rounded-xl bg-paperWarm flex items-center justify-center">
+                  <Icon />
+                </div>
+                <span className="text-[12px] font-semibold">{label}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Activity */}
+        <div className="px-5 mt-7">
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="text-[15px] font-semibold tracking-tight">Recent activity</h2>
+            <button onClick={()=>go("history")} className="text-[13px] text-ink3 font-medium">See all</button>
+          </div>
+          <div className="card divide-y divide-line2">
+            <TxnRow type="borrow" amount={900} when="Yesterday" status="Disbursed"/>
+            <TxnRow type="repay"  amount={1000} when="3 days ago" status="Repaid"/>
+            <TxnRow type="borrow" amount={900} when="5 days ago" status="Repaid"/>
+          </div>
+        </div>
+
+        {/* Tip */}
+        <div className="mx-5 mt-5 rounded-2xl px-4 py-3.5 flex items-start gap-3" style={{ background:"#F5EBDA"}}>
+          <I.Sparkle style={{ color:"#B8915C", marginTop:2, flexShrink:0 }}/>
+          <p className="text-[12px] text-ink2 leading-relaxed">
+            Repay your next loan on time and your limit moves to <span className="font-semibold">₹1,500</span>.
+          </p>
+        </div>
+      </div>
+      <BottomNav active="dashboard" go={go}/>
+    </PhoneFrame>
+  );
+}
+
+function TxnRow({ type, amount, when, status }) {
+  const isBorrow = type === "borrow";
+  return (
+    <div className="p-4 flex items-center gap-3">
+      <div className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 ${isBorrow ? "bg-mint":"bg-amberSoft"}`}>
+        {isBorrow
+          ? <I.Down style={{ color:"#1B5E3F"}}/>
+          : <I.Up style={{ color:"#D9A441"}}/>}
+      </div>
+      <div className="flex-1 min-w-0">
+        <p className="font-semibold text-[14px] tracking-tight">{isBorrow ? "Cash advance" : "Repayment"}</p>
+        <p className="text-[11px] text-ink3">{when} · {status}</p>
+      </div>
+      <p className={`font-semibold num text-[14px] tracking-tight ${isBorrow ? "text-forest":"text-ink2"}`}>
+        {isBorrow ? "+" : "−"}₹{amount.toLocaleString("en-IN")}
+      </p>
+    </div>
+  );
+}
+
+/* 7. BORROW */
+function BorrowScreen({ go, state, set }) {
+  const [amount, setAmount] = useState(state.borrowAmount || 1000);
+  const [showKfs, setShowKfs] = useState(false);
+  const interest = 50;
+  const processing = 50;
+  const youGet = Math.max(0, amount - interest - processing);
+
+  function confirm() {
+    set({ ...state, outstanding: amount, lastBorrow: amount });
+    setShowKfs(false);
+    go("borrow-success");
+  }
+
+  return (
+    <PhoneFrame>
+      <TopBar title="New advance" onBack={()=>go("dashboard")} />
+      <div className="px-6 pb-8 anim-in">
+
+        <p className="eyebrow">How much do you need?</p>
+        <div className="mt-4 flex items-baseline gap-1">
+          <span className="font-display text-[36px] text-ink3">₹</span>
+          <span className="font-display num text-[88px] leading-none tracking-tighter">{amount.toLocaleString("en-IN")}</span>
+        </div>
+        <p className="text-ink3 text-[13px] mt-1">Max ₹1,000 · 1-day tenure</p>
+
+        <div className="mt-7">
+          <input
+            type="range" min="100" max="1000" step="50"
+            value={amount}
+            onChange={e=>setAmount(Number(e.target.value))}
+            className="kasko-slider"
+          />
+          <div className="flex justify-between mt-2 num text-[11px] text-ink3">
+            <span>₹100</span><span>₹1,000</span>
+          </div>
+        </div>
+
+        <div className="mt-4 grid grid-cols-4 gap-2">
+          {[200, 500, 750, 1000].map(p => (
+            <button key={p}
+              onClick={()=>setAmount(p)}
+              className={`py-2 rounded-xl text-[12px] font-semibold transition border
+                ${amount === p ? "bg-ink text-paper border-ink" : "bg-paperWarm border-transparent text-ink2"}`}>
+              ₹{p}
+            </button>
+          ))}
+        </div>
+
+        {/* Breakdown card */}
+        <div className="card mt-6 p-5">
+          <p className="eyebrow mb-4">Cost breakdown</p>
+
+          <div className="flex items-baseline justify-between">
+            <div>
+              <p className="text-[12px] text-ink3">You'll receive</p>
+              <p className="font-display text-[36px] num tracking-tighter leading-tight">₹{youGet.toLocaleString("en-IN")}</p>
+            </div>
+            <div className="text-right">
+              <p className="text-[12px] text-ink3">Repay tomorrow</p>
+              <p className="font-semibold num text-[20px] tracking-tight">₹{amount.toLocaleString("en-IN")}</p>
+            </div>
+          </div>
+
+          <div className="divider my-4"></div>
+
+          <div className="space-y-2 text-[13px]">
+            <div className="flex justify-between text-ink2"><span>Interest</span><span className="num">₹{interest}</span></div>
+            <div className="flex justify-between text-ink2"><span>Processing fee</span><span className="num">₹{processing}</span></div>
+            <div className="flex justify-between text-ink"><span className="font-semibold">Total cost</span><span className="num font-semibold">₹{interest + processing}</span></div>
+          </div>
+
+          <div className="mt-4 px-3 py-2.5 rounded-xl flex items-center gap-2" style={{ background:"#FBE9E4"}}>
+            <I.Alert style={{ color:"#C8553D", flexShrink:0, width:14, height:14 }}/>
+            <p className="text-[11px] text-ink2 leading-snug">Late fee: <span className="font-semibold">₹50/day</span> after due date, capped at ₹500.</p>
+          </div>
+        </div>
+
+        <button onClick={()=>setShowKfs(true)} className="btn btn-primary w-full mt-6">
+          Review terms & confirm <I.ArrowRight />
+        </button>
+
+        <p className="text-[11px] text-ink3 text-center mt-4 leading-relaxed">
+          Lender: <span className="font-semibold">Northern Arc Finance</span> (RBI-registered NBFC)<br/>
+          Kasko is a Lending Service Provider.
+        </p>
+      </div>
+
+      {showKfs && <KfsSheet amount={amount} youGet={youGet} onAccept={confirm} onClose={()=>setShowKfs(false)} />}
+    </PhoneFrame>
+  );
+}
+
+function KfsSheet({ amount, youGet, onAccept, onClose }) {
+  const [a1, setA1] = useState(false);
+  const [a2, setA2] = useState(false);
+  const can = a1 && a2;
+  const aprDaily = ((100 / Math.max(1,youGet)) * 100).toFixed(1);
+  const aprAnnual = Math.round(Number(aprDaily) * 365);
+
+  return (
+    <div className="absolute inset-0 z-50 flex items-end sheet-backdrop" onClick={onClose}>
+      <div className="bg-paper w-full rounded-t-[28px] max-h-[85%] overflow-y-auto sheet" onClick={e=>e.stopPropagation()}>
+        <div className="sticky top-0 bg-paper pt-3 pb-2 px-6 z-10">
+          <div className="w-12 h-1 rounded-full bg-line mx-auto"></div>
+          <div className="flex items-center justify-between mt-3">
+            <h2 className="font-display text-[22px] tracking-tighter">Key Facts Statement</h2>
+            <button onClick={onClose} className="w-9 h-9 rounded-full bg-paperWarm flex items-center justify-center"><I.X/></button>
+          </div>
+          <p className="text-[11px] text-ink3 mt-1">As required by RBI Digital Lending Guidelines, 2022</p>
+        </div>
+
+        <div className="px-6 pb-6">
+          <div className="card p-5 mt-4">
+            <KfsRow label="Loan amount (sanctioned)" value={`₹${amount.toLocaleString("en-IN")}`}/>
+            <KfsRow label="Net amount to your bank"  value={`₹${youGet.toLocaleString("en-IN")}`} strong/>
+            <KfsRow label="Tenure"                   value="1 day"/>
+            <KfsRow label="Repayment date"           value={tomorrow()}/>
+            <KfsRow label="Interest"                 value="₹50"/>
+            <KfsRow label="Processing fee"           value="₹50"/>
+            <KfsRow label="Total interest & charges" value="₹100" strong/>
+          </div>
+
+          <div className="card p-5 mt-3 bg-paperWarm border-line2">
+            <p className="eyebrow text-rust">Annualized cost of credit</p>
+            <p className="font-display text-[32px] tracking-tighter mt-1 num">{aprAnnual}% APR</p>
+            <p className="text-[12px] text-ink3 leading-relaxed mt-2">
+              Short-tenure advances have a high annualized rate because the principal turns over quickly. The actual amount you pay above what you receive is ₹100.
+            </p>
+          </div>
+
+          <div className="card p-5 mt-3">
+            <p className="eyebrow mb-3">Late payment</p>
+            <ul className="space-y-2 text-[13px] text-ink2 leading-relaxed">
+              <li>• ₹50 added per day after the due date</li>
+              <li>• Late fee capped at ₹500 (10 days)</li>
+              <li>• After 30 days the loan is reported to CIBIL</li>
+            </ul>
+          </div>
+
+          <div className="card p-5 mt-3">
+            <p className="eyebrow mb-2">Grievance redressal</p>
+            <p className="text-[13px] text-ink2 leading-relaxed">
+              Anjali Sharma · Nodal Officer<br/>
+              grievance@kasko.in · 1800-XXX-XXXX<br/>
+              Response within 30 days. RBI Ombudsman: cms.rbi.org.in
+            </p>
+          </div>
+
+          <div className="mt-5 space-y-3">
+            <label className="flex items-start gap-3 cursor-pointer" onClick={()=>setA1(!a1)}>
+              <div className={`w-5 h-5 mt-0.5 rounded-md flex items-center justify-center ${a1?"bg-ink":"bg-paperWarm border border-line"}`}>
+                {a1 && <I.Check style={{ width:12, height:12, color:"#FAFAF7" }}/>}
+              </div>
+              <span className="text-[13px] leading-relaxed text-ink2">I have read and understood the Key Facts Statement including all charges and the late fee policy.</span>
+            </label>
+            <label className="flex items-start gap-3 cursor-pointer" onClick={()=>setA2(!a2)}>
+              <div className={`w-5 h-5 mt-0.5 rounded-md flex items-center justify-center ${a2?"bg-ink":"bg-paperWarm border border-line"}`}>
+                {a2 && <I.Check style={{ width:12, height:12, color:"#FAFAF7" }}/>}
+              </div>
+              <span className="text-[13px] leading-relaxed text-ink2">I authorize Northern Arc Finance to disburse ₹{youGet.toLocaleString("en-IN")} to my bank account and to debit ₹{amount.toLocaleString("en-IN")} on the due date.</span>
+            </label>
+          </div>
+
+          <button disabled={!can} onClick={onAccept} className="btn btn-forest w-full mt-6">
+            Accept & receive ₹{youGet.toLocaleString("en-IN")} <I.ArrowRight />
+          </button>
+          <button onClick={onClose} className="btn btn-ghost w-full mt-1 text-ink3">Cancel</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+function KfsRow({ label, value, strong }) {
+  return (
+    <div className="flex items-center justify-between py-1.5">
+      <span className="text-[13px] text-ink3">{label}</span>
+      <span className={`text-[14px] num ${strong ? "font-semibold text-ink" : "text-ink2"}`}>{value}</span>
+    </div>
+  );
+}
+
+/* 8. BORROW SUCCESS */
+function BorrowSuccessScreen({ go, state }) {
+  const sent = (state.lastBorrow || 1000) - 100;
+  return (
+    <PhoneFrame>
+      <div className="h-full flex flex-col px-6 pt-10 pb-8 anim-in">
+        <div className="flex-1 flex flex-col items-center justify-center text-center">
+          <div className="w-24 h-24 rounded-full bg-mint flex items-center justify-center pop-in">
+            <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="#1B5E3F" strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round">
+              <polyline className="check-path" points="20 6 9 17 4 12"/>
+            </svg>
+          </div>
+          <h1 className="font-display text-[36px] tracking-tighter mt-7 leading-none">All set.</h1>
+          <p className="text-ink3 mt-3 text-[15px] leading-relaxed max-w-[280px]">₹{sent.toLocaleString("en-IN")} is on its way to your HDFC account ····3456. Usually under 2 minutes.</p>
+        </div>
+
+        <div className="card p-5 mt-2">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-[11px] text-ink3 eyebrow">Repay by</p>
+              <p className="font-display text-[24px] tracking-tighter mt-1">{tomorrow()}</p>
+              <p className="text-[12px] text-ink3 num">11:59 PM</p>
+            </div>
+            <div className="text-right">
+              <p className="text-[11px] text-ink3 eyebrow">Amount due</p>
+              <p className="font-display text-[24px] tracking-tighter mt-1 num">₹{state.lastBorrow || 1000}</p>
+              <p className="text-[12px] text-ink3">1-day tenure</p>
+            </div>
+          </div>
+          <div className="divider my-4"></div>
+          <div className="flex items-start gap-2.5 text-[12px] text-ink2">
+            <I.Info style={{ marginTop:2, flexShrink:0 }}/>
+            <p>We'll send a reminder at 6 PM tomorrow. Pay any time before the deadline to keep your credit healthy.</p>
+          </div>
+        </div>
+
+        <div className="mt-4 space-y-2">
+          <button onClick={()=>go("repayment")} className="btn btn-soft w-full">Set up auto-debit</button>
+          <button onClick={()=>go("dashboard")} className="btn btn-primary w-full">Done <I.Check style={{width:16,height:16}}/></button>
+        </div>
+      </div>
+    </PhoneFrame>
+  );
+}
+
+/* 9. REPAYMENT */
+function RepaymentScreen({ go, state, set }) {
+  const due = state.outstanding || state.lastBorrow || 1000;
+  const [method, setMethod] = useState("upi");
+  const [showSkip, setShowSkip] = useState(false);
+
+  function pay() {
+    set({ ...state, outstanding: 0, limit: 1500 });
+    go("repay-success");
+  }
+
+  return (
+    <PhoneFrame>
+      <TopBar title="Repay" onBack={()=>go("dashboard")} />
+      <div className="px-6 anim-in pb-6">
+
+        <div className="card p-5" style={{ background:"linear-gradient(170deg, #FBF1DC 0%, #F5EBDA 100%)", borderColor:"#EFDFC0" }}>
+          <p className="eyebrow" style={{ color:"#8B6A3A" }}>Amount due</p>
+          <div className="flex items-baseline gap-1 mt-1">
+            <span className="font-display text-[28px] text-ink3">₹</span>
+            <span className="font-display text-[56px] leading-none tracking-tighter num">{due.toLocaleString("en-IN")}</span>
+          </div>
+          <div className="mt-3 flex items-center gap-2 text-ink2">
+            <I.Clock style={{ width:14, height:14 }}/>
+            <p className="text-[12px] font-medium">Due in <span className="font-semibold num">14 hours</span> · before midnight</p>
+          </div>
+        </div>
+
+        <p className="eyebrow mt-7 mb-3">Choose how to pay</p>
+
+        <button onClick={()=>setMethod("upi")}
+          className={`w-full text-left p-4 rounded-2xl flex items-center gap-3 transition border
+            ${method==="upi" ? "bg-ink text-paper border-ink" : "bg-surface border-line"}`}>
+          <div className={`w-10 h-10 rounded-xl flex items-center justify-center
+            ${method==="upi" ? "bg-paper/15" : "bg-paperWarm"}`}>
+            <I.Phone style={{ color: method==="upi" ? "#FAFAF7" : "#0F1419", width:18, height:18 }}/>
+          </div>
+          <div className="flex-1">
+            <p className="font-semibold text-[14px]">UPI — open in app</p>
+            <p className={`text-[11px] ${method==="upi" ? "text-paper/60" : "text-ink3"}`}>GPay · PhonePe · Paytm · BHIM</p>
+          </div>
+          {method==="upi" && <I.Check style={{ width:18, height:18, color:"#FAFAF7" }}/>}
+        </button>
+
+        <button onClick={()=>setMethod("qr")}
+          className={`w-full text-left p-4 mt-2 rounded-2xl flex items-center gap-3 transition border
+            ${method==="qr" ? "bg-ink text-paper border-ink" : "bg-surface border-line"}`}>
+          <div className={`w-10 h-10 rounded-xl flex items-center justify-center
+            ${method==="qr" ? "bg-paper/15" : "bg-paperWarm"}`}>
+            <I.QR style={{ color: method==="qr" ? "#FAFAF7" : "#0F1419"}}/>
+          </div>
+          <div className="flex-1">
+            <p className="font-semibold text-[14px]">Scan QR</p>
+            <p className={`text-[11px] ${method==="qr" ? "text-paper/60" : "text-ink3"}`}>Show this in any UPI app</p>
+          </div>
+          {method==="qr" && <I.Check style={{ width:18, height:18, color:"#FAFAF7" }}/>}
+        </button>
+
+        {/* UPI apps row */}
+        {method === "upi" && (
+          <div className="mt-4 grid grid-cols-4 gap-2 anim-in">
+            {["GPay","PhonePe","Paytm","BHIM"].map(app => (
+              <button key={app} onClick={pay} className="card-flat py-3 flex flex-col items-center gap-1.5 active:scale-95 transition">
+                <div className="w-9 h-9 rounded-lg flex items-center justify-center text-[10px] font-bold text-paper"
+                  style={{ background: app==="GPay"?"#4285F4":app==="PhonePe"?"#5F259F":app==="Paytm"?"#00BAF2":"#00A0DC"}}>
+                  {app[0]}
+                </div>
+                <span className="text-[10px] font-semibold">{app}</span>
+              </button>
+            ))}
+          </div>
+        )}
+
+        {method === "qr" && (
+          <div className="mt-4 card p-6 flex flex-col items-center anim-in">
+            <div className="w-44 h-44 bg-paperWarm rounded-2xl flex items-center justify-center">
+              <I.QR style={{ width:120, height:120, color:"#0F1419"}}/>
+            </div>
+            <p className="text-[12px] text-ink3 mt-3">Scan with any UPI app</p>
+          </div>
+        )}
+
+        {/* UPI ID display */}
+        <div className="card-flat mt-4 p-4 flex items-center justify-between">
+          <div>
+            <p className="eyebrow text-[10px]">UPI ID</p>
+            <p className="text-[14px] font-mono mt-1">kasko.repay@hdfcbank</p>
+          </div>
+          <button className="w-9 h-9 rounded-full bg-paperWarm flex items-center justify-center"><I.Copy/></button>
+        </div>
+
+        <button onClick={pay} className="btn btn-forest w-full mt-6">
+          Pay ₹{due.toLocaleString("en-IN")} now
+        </button>
+        <button onClick={()=>setShowSkip(true)} className="btn btn-ghost w-full mt-1 text-ink3 text-[13px]">I'll pay later</button>
+      </div>
+
+      {showSkip && (
+        <div className="absolute inset-0 z-50 flex items-end sheet-backdrop" onClick={()=>setShowSkip(false)}>
+          <div className="bg-paper w-full rounded-t-[28px] p-6 sheet" onClick={e=>e.stopPropagation()}>
+            <div className="w-12 h-1 rounded-full bg-line mx-auto mb-4"></div>
+            <div className="w-14 h-14 rounded-2xl bg-rustSoft flex items-center justify-center">
+              <I.Alert style={{ color:"#C8553D", width:24, height:24 }}/>
+            </div>
+            <h2 className="font-display text-[24px] tracking-tighter mt-4">Are you sure?</h2>
+            <p className="text-ink2 text-[14px] leading-relaxed mt-2">If you miss the midnight deadline:</p>
+            <ul className="mt-3 space-y-1.5 text-[13px] text-ink2">
+              <li>• <span className="font-semibold">₹50/day</span> late fee, up to ₹500</li>
+              <li>• You'll lose your <span className="font-semibold">on-time streak</span> (currently 7 days)</li>
+              <li>• Your limit stays at ₹1,000 instead of moving to ₹1,500</li>
+            </ul>
+            <div className="space-y-2 mt-6">
+              <button onClick={()=>setShowSkip(false)} className="btn btn-forest w-full">Take me back to pay</button>
+              <button onClick={()=>{ setShowSkip(false); go("dashboard"); }} className="btn btn-ghost w-full text-ink3 text-[13px]">I understand the risk, remind me later</button>
+            </div>
+          </div>
+        </div>
+      )}
+    </PhoneFrame>
+  );
+}
+
+/* 10. REPAY SUCCESS */
+function RepaySuccessScreen({ go }) {
+  return (
+    <PhoneFrame>
+      <div className="h-full flex flex-col px-6 pt-10 pb-8 anim-in">
+        <div className="flex-1 flex flex-col items-center justify-center text-center">
+          <div className="w-24 h-24 rounded-full bg-forest flex items-center justify-center pop-in">
+            <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="#FAFAF7" strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round">
+              <polyline className="check-path" points="20 6 9 17 4 12"/>
+            </svg>
+          </div>
+          <h1 className="font-display text-[36px] tracking-tighter mt-7 leading-none">Paid in full.</h1>
+          <p className="text-ink3 mt-3 text-[15px] leading-relaxed max-w-[280px]">Thank you. Your repayment of ₹1,000 has been received and your account is clear.</p>
+        </div>
+
+        <div className="rounded-3xl p-6 mt-2 text-center" style={{ background:"linear-gradient(165deg, #1B5E3F, #0E4329)" }}>
+          <p className="text-paper/60 eyebrow">New borrowing limit</p>
+          <p className="font-display text-paper text-[44px] tracking-tighter mt-1 num">₹1,500</p>
+          <p className="text-paper/70 text-[12px] mt-1">Unlocked for repaying on time. Keep your streak going.</p>
+        </div>
+
+        <div className="mt-4 space-y-2">
+          <button onClick={()=>go("borrow")} className="btn btn-soft w-full">Borrow again</button>
+          <button onClick={()=>go("dashboard")} className="btn btn-primary w-full">Done <I.Check style={{width:16,height:16}}/></button>
+        </div>
+      </div>
+    </PhoneFrame>
+  );
+}
+
+/* 11. HISTORY */
+function HistoryScreen({ go }) {
+  const [tab, setTab] = useState("all");
+  const txns = [
+    { id:1, type:"borrow", amount:900,  date:"Yesterday",   status:"Disbursed", note:"To HDFC ····3456"},
+    { id:2, type:"repay",  amount:1000, date:"15 May 2026", status:"Repaid",    note:"Via PhonePe UPI"},
+    { id:3, type:"borrow", amount:900,  date:"14 May 2026", status:"Repaid",    note:"To HDFC ····3456"},
+    { id:4, type:"repay",  amount:1000, date:"08 May 2026", status:"Repaid",    note:"Via UPI auto-debit"},
+    { id:5, type:"borrow", amount:900,  date:"07 May 2026", status:"Repaid",    note:"To HDFC ····3456"},
+    { id:6, type:"repay",  amount:1050, date:"02 May 2026", status:"Repaid late",note:"Late fee ₹50 included"},
+    { id:7, type:"borrow", amount:900,  date:"01 May 2026", status:"Repaid",    note:"To HDFC ····3456"},
+  ];
+  const filtered = tab === "all" ? txns : txns.filter(t => t.type === tab);
+
+  return (
+    <PhoneFrame>
+      <div className="pb-32">
+        <TopBar title="Activity" right={<button className="w-10 h-10 rounded-full bg-paperWarm flex items-center justify-center"><I.Search style={{width:16,height:16}}/></button>}/>
+
+        <div className="px-5 grid grid-cols-3 gap-2">
+          <div className="card-flat p-3">
+            <p className="eyebrow text-[10px]">Borrowed</p>
+            <p className="font-display text-[20px] num tracking-tighter mt-1">₹3,600</p>
+          </div>
+          <div className="card-flat p-3">
+            <p className="eyebrow text-[10px]">Repaid</p>
+            <p className="font-display text-[20px] num tracking-tighter mt-1">₹4,050</p>
+          </div>
+          <div className="card-flat p-3" style={{ background: "#FBE9E4", borderColor:"#F1D4CD"}}>
+            <p className="eyebrow text-[10px]" style={{color:"#8B3324"}}>Outstanding</p>
+            <p className="font-display text-[20px] num tracking-tighter mt-1" style={{color:"#8B3324"}}>₹0</p>
+          </div>
+        </div>
+
+        <div className="px-5 mt-5 flex gap-2">
+          {[["all","All"],["borrow","Advances"],["repay","Repayments"]].map(([k,l])=>(
+            <button key={k} onClick={()=>setTab(k)}
+              className={`px-4 py-2 rounded-full text-[12px] font-semibold transition
+                ${tab===k ? "bg-ink text-paper" : "bg-paperWarm text-ink2"}`}>{l}</button>
+          ))}
+        </div>
+
+        <div className="px-5 mt-4 space-y-2">
+          {filtered.map(t => {
+            const isBorrow = t.type === "borrow";
+            const isLate = t.status === "Repaid late";
+            return (
+              <div key={t.id} className="card p-4 flex items-center gap-3">
+                <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0
+                  ${isBorrow ? "bg-mint" : isLate ? "bg-rustSoft" : "bg-amberSoft"}`}>
+                  {isBorrow
+                    ? <I.Down style={{ color:"#1B5E3F"}}/>
+                    : <I.Up   style={{ color: isLate ? "#C8553D" : "#D9A441"}}/>}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="font-semibold text-[14px]">{isBorrow ? "Cash advance" : "Repayment"}</p>
+                  <p className="text-[11px] text-ink3">{t.date} · {t.note}</p>
+                </div>
+                <div className="text-right">
+                  <p className={`font-semibold num text-[14px] ${isBorrow ? "text-forest" : isLate ? "text-rust" : "text-ink2"}`}>
+                    {isBorrow ? "+" : "−"}₹{t.amount.toLocaleString("en-IN")}
+                  </p>
+                  <p className="text-[10px] text-ink3 mt-0.5">{t.status}</p>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+      <BottomNav active="history" go={go}/>
+    </PhoneFrame>
+  );
+}
+
+/* 12. PROFILE */
+function ProfileScreen({ go }) {
+  return (
+    <PhoneFrame>
+      <div className="pb-32">
+        <TopBar title="Profile"/>
+        <div className="px-5">
+          <div className="card p-5">
+            <div className="flex items-center gap-4">
+              <div className="w-14 h-14 rounded-2xl bg-ink text-paper flex items-center justify-center font-display text-[24px] font-medium">S</div>
+              <div className="flex-1">
+                <p className="font-semibold text-[17px] tracking-tight">Shree</p>
+                <div className="flex items-center gap-1.5 mt-0.5">
+                  <I.Check style={{ width:12, height:12, color:"#1B5E3F"}}/>
+                  <span className="text-[11px] font-semibold text-forest uppercase tracking-wider">Verified</span>
+                </div>
+              </div>
+            </div>
+            <div className="divider my-4"></div>
+            <div className="grid grid-cols-3 text-center divide-x divide-line">
+              <div className="px-1">
+                <p className="eyebrow text-[9px]">Limit</p>
+                <p className="font-display text-[18px] num tracking-tighter mt-1">₹1,500</p>
+              </div>
+              <div className="px-1">
+                <p className="eyebrow text-[9px]">CIBIL</p>
+                <p className="font-display text-[18px] num tracking-tighter mt-1">742</p>
+              </div>
+              <div className="px-1">
+                <p className="eyebrow text-[9px]">Streak</p>
+                <p className="font-display text-[18px] num tracking-tighter mt-1">7 days</p>
+              </div>
+            </div>
+          </div>
+
+          <Section title="Account">
+            <Row Icon={I.Phone} label="Mobile number"    value="+91 98765 43210" />
+            <Row Icon={I.Mail}  label="Email"            value="shri@gmail.com" />
+            <Row Icon={I.Bank}  label="HDFC Bank"        value="····3456"        verified />
+          </Section>
+
+          <Section title="Documents">
+            <Row Icon={I.Doc}    label="PAN"     value="ABCDE····1F"  verified />
+            <Row Icon={I.IdCard} label="Aadhaar" value="····5678"    verified />
+            <Row Icon={I.Camera} label="Selfie"  value="Verified"    verified />
+          </Section>
+
+          <Section title="Preferences">
+            <RowToggle Icon={I.Bell}   label="Repayment reminders"  initial />
+            <RowToggle Icon={I.Lock}   label="Biometric login"       initial />
+            <RowToggle Icon={I.Sparkle}label="Auto-debit on due date" />
+          </Section>
+
+          <button onClick={()=>go("splash")} className="w-full mt-4 p-4 rounded-2xl bg-paperWarm flex items-center justify-center gap-2 text-rust font-semibold text-[14px]">
+            <I.Logout/> Sign out
+          </button>
+
+          <p className="text-[10px] text-ink4 text-center mt-6 leading-relaxed">
+            Kasko Technologies Pvt Ltd<br/>
+            Lender: Northern Arc Finance · NBFC-D-13.01234<br/>
+            App v1.0.0
+          </p>
+        </div>
+      </div>
+      <BottomNav active="profile" go={go}/>
+    </PhoneFrame>
+  );
+}
+function Section({ title, children }) {
+  return (
+    <div className="mt-5">
+      <p className="eyebrow mb-2 px-1">{title}</p>
+      <div className="card divide-y divide-line2">{children}</div>
+    </div>
+  );
+}
+function Row({ Icon, label, value, verified }) {
+  return (
+    <div className="p-4 flex items-center gap-3">
+      <div className="w-9 h-9 rounded-xl bg-paperWarm flex items-center justify-center flex-shrink-0">
+        <Icon />
+      </div>
+      <div className="flex-1 min-w-0">
+        <p className="font-semibold text-[13px]">{label}</p>
+        <p className="text-[12px] text-ink3 truncate">{value}</p>
+      </div>
+      {verified && (
+        <div className="px-2 py-0.5 rounded-full bg-mint flex items-center gap-1">
+          <I.Check style={{ width:10, height:10, color:"#1B5E3F"}}/>
+          <span className="text-[10px] font-semibold text-forest">Verified</span>
+        </div>
+      )}
+    </div>
+  );
+}
+function RowToggle({ Icon, label, initial }) {
+  const [on, setOn] = useState(!!initial);
+  return (
+    <div className="p-4 flex items-center gap-3">
+      <div className="w-9 h-9 rounded-xl bg-paperWarm flex items-center justify-center flex-shrink-0"><Icon /></div>
+      <p className="flex-1 font-semibold text-[13px]">{label}</p>
+      <div onClick={()=>setOn(!on)} className={`toggle ${on?"on":""}`}></div>
+    </div>
+  );
+}
+
+/* 13. HELP */
+function HelpScreen({ go }) {
+  const topics = [
+    "How does Kasko make money?",
+    "What happens if I miss the due date?",
+    "Why do you check my CIBIL score?",
+    "When will my limit increase?",
+    "How do I close my account?",
+    "Is my data safe?",
+  ];
+  return (
+    <PhoneFrame>
+      <div className="pb-32">
+        <TopBar title="Help & support"/>
+        <div className="px-5">
+          <div className="relative">
+            <input className="field pl-11" placeholder="Search how-to articles…"/>
+            <I.Search style={{ position:"absolute", left:16, top:18, color:"#9CA3AF"}}/>
+          </div>
+
+          <div className="grid grid-cols-3 gap-2 mt-5">
+            <ContactCard Icon={I.Chat}  label="Chat"  sub="2 min wait" />
+            <ContactCard Icon={I.Phone} label="Call"  sub="10am–7pm" />
+            <ContactCard Icon={I.Mail}  label="Email" sub="< 24 hrs" />
+          </div>
+
+          <p className="eyebrow mt-7 mb-3 px-1">Popular questions</p>
+          <div className="card divide-y divide-line2">
+            {topics.map(t => (
+              <button key={t} className="w-full p-4 flex items-center gap-3 text-left active:bg-paperWarm transition">
+                <I.Help style={{ color:"#6B7280", flexShrink:0 }}/>
+                <span className="flex-1 text-[14px] font-medium tracking-tight">{t}</span>
+                <I.ChevronRight style={{ color:"#9CA3AF" }}/>
+              </button>
+            ))}
+          </div>
+
+          <div className="card p-5 mt-5">
+            <p className="eyebrow mb-2">Grievance redressal</p>
+            <p className="text-[13px] text-ink2 leading-relaxed">
+              <span className="font-semibold">Anjali Sharma</span>, Nodal Officer<br/>
+              grievance@kasko.in · 1800-XXX-XXXX
+            </p>
+            <p className="text-[11px] text-ink3 mt-3 leading-relaxed">
+              If unresolved within 30 days, you may escalate to the RBI Integrated Ombudsman at <u>cms.rbi.org.in</u>.
+            </p>
+          </div>
+        </div>
+      </div>
+      <BottomNav active="help" go={go}/>
+    </PhoneFrame>
+  );
+}
+function ContactCard({ Icon, label, sub }) {
+  return (
+    <button className="card-flat p-4 flex flex-col items-center gap-2 active:scale-95 transition">
+      <div className="w-10 h-10 rounded-xl bg-ink text-paper flex items-center justify-center"><Icon /></div>
+      <span className="text-[13px] font-semibold">{label}</span>
+      <span className="text-[10px] text-ink3">{sub}</span>
+    </button>
+  );
+}
+
+/* ═══════════════════════════════════════════
+   ROUTER + OUTER CHROME
+   ═══════════════════════════════════════════ */
+
+const SCREENS = {
+  splash:          { Comp: SplashScreen,        name: "Splash" },
+  login:           { Comp: LoginScreen,         name: "Sign in" },
+  otp:             { Comp: OtpScreen,           name: "OTP" },
+  consent:         { Comp: ConsentScreen,       name: "CIBIL consent" },
+  kyc:             { Comp: KycScreen,           name: "KYC" },
+  dashboard:       { Comp: DashboardScreen,     name: "Dashboard" },
+  borrow:          { Comp: BorrowScreen,        name: "Borrow" },
+  "borrow-success":{ Comp: BorrowSuccessScreen, name: "Disbursed" },
+  repayment:       { Comp: RepaymentScreen,     name: "Repayment" },
+  "repay-success": { Comp: RepaySuccessScreen,  name: "Repaid" },
+  history:         { Comp: HistoryScreen,       name: "Activity" },
+  profile:         { Comp: ProfileScreen,       name: "Profile" },
+  help:            { Comp: HelpScreen,          name: "Help" },
+};
+
+function App() {
+  const [screen, setScreen] = useState("splash");
+  const [state, setState] = useState({
+    phone: "9876543210",
+    limit: 1000,
+    outstanding: 0,
+    kyc: {},
+  });
+  const [navOpen, setNavOpen] = useState(false);
+  const go = (s) => { setScreen(s); setNavOpen(false); };
+  const Comp = SCREENS[screen].Comp;
+
+  return (
+    <div className="min-h-screen w-full flex flex-col items-center" style={{ background: "#EDEAE3" }}>
+      {/* Outer chrome */}
+      <div className="w-full max-w-6xl px-6 pt-8 pb-4 flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="w-9 h-9 rounded-xl bg-ink text-paper flex items-center justify-center font-display text-[20px] font-medium">K</div>
+          <div>
+            <p className="font-display text-[20px] tracking-tighter leading-none">Kasko</p>
+            <p className="text-[11px] text-ink3 mt-0.5">Interactive prototype · v1</p>
+          </div>
+        </div>
+        <button onClick={()=>setNavOpen(!navOpen)} className="px-4 py-2 rounded-full bg-ink text-paper text-[13px] font-semibold flex items-center gap-2">
+          {SCREENS[screen].name} <I.ChevronDown style={{ width:14, height:14 }}/>
+        </button>
+      </div>
+
+      {/* Screen jumper */}
+      {navOpen && (
+        <div className="w-full max-w-6xl px-6 mb-4">
+          <div className="card p-4">
+            <p className="eyebrow mb-3">Jump to a screen</p>
+            <div className="flex flex-wrap gap-2">
+              {Object.entries(SCREENS).map(([key, { name }]) => (
+                <button key={key} onClick={()=>go(key)}
+                  className={`px-3.5 py-2 rounded-full text-[12px] font-semibold transition border
+                    ${screen===key ? "bg-ink text-paper border-ink" : "bg-paperWarm text-ink2 border-transparent"}`}>
+                  {name}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Phone */}
+      <div className="py-6 px-6 w-full flex items-center justify-center flex-1">
+        <Comp go={go} state={state} set={setState} />
+      </div>
+
+      {/* Footer chrome */}
+      <div className="w-full max-w-6xl px-6 pb-6 text-center">
+        <p className="text-[10px] text-ink3 leading-relaxed">
+          For design review only. Demo data — not connected to real banking or CIBIL.<br/>
+          Use OTP <span className="font-mono font-semibold">123456</span> and tap "Verify" through each KYC step.
+        </p>
+      </div>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+</script>
+</body>
+</html>
