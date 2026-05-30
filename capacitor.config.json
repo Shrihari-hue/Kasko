@@ -3,7 +3,7 @@
   "appName": "Kasko",
   "webDir": "www",
   "server": {
-    "url": "https://REPLACE-WITH-YOUR-RAILWAY-URL.up.railway.app",
+    "url": "https://kasko-production.up.railway.app",
     "cleartext": false
   }
 }

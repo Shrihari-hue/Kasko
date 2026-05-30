@@ -9,7 +9,7 @@ import { getToken } from "./session";
 export const API_BASE =
   process.env.EXPO_PUBLIC_API_BASE ||
   (Constants.expoConfig?.extra as any)?.apiBase ||
-  "https://REPLACE-WITH-YOUR-RAILWAY-URL.up.railway.app";
+  "https://kasko-production.up.railway.app";
 
 async function call<T>(path: string, init?: RequestInit): Promise<T> {
   const token = await getToken();

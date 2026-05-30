@@ -32,6 +32,7 @@
       "typedRoutes": true
     },
     "extra": {
+      "apiBase": "https://kasko-production.up.railway.app",
       "eas": {
         "projectId": "330b431f-7513-4a36-bd03-4a8e6eff995a"
       },
