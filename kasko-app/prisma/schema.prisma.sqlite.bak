@@ -1,16 +1,16 @@
-// Kasko data model — MongoDB (Prisma). IDs are cuid strings mapped to Mongo _id.
-// Set DATABASE_URL to your MongoDB connection string (mongodb+srv://...).
+// Kasko data model — SQLite for local dev. Swap `provider` to "postgresql"
+// and set DATABASE_URL to your managed Postgres for staging/production.
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "mongodb"
+  provider = "sqlite"
   url      = env("DATABASE_URL")
 }
 
 model User {
-  id          String   @id @default(cuid()) @map("_id")
+  id          String   @id @default(cuid())
   phone       String   @unique
   name        String?
   email       String?
@@ -31,7 +31,7 @@ model User {
 }
 
 model OtpChallenge {
-  id        String   @id @default(cuid()) @map("_id")
+  id        String   @id @default(cuid())
   userId    String?
   user      User?    @relation(fields: [userId], references: [id])
   phone     String
@@ -46,7 +46,7 @@ model OtpChallenge {
 
 // RBI Digital Lending: consent artifacts must be stored & retrievable.
 model Consent {
-  id        String   @id @default(cuid()) @map("_id")
+  id        String   @id @default(cuid())
   userId    String
   user      User     @relation(fields: [userId], references: [id])
   kind      String   // "cibil_pull" | "kfs_accept" | "auto_debit"
@@ -58,7 +58,7 @@ model Consent {
 }
 
 model CreditCheck {
-  id         String   @id @default(cuid()) @map("_id")
+  id         String   @id @default(cuid())
   userId     String
   user       User     @relation(fields: [userId], references: [id])
   bureau     String   @default("CIBIL")
@@ -72,7 +72,7 @@ model CreditCheck {
 }
 
 model KycRecord {
-  id        String   @id @default(cuid()) @map("_id")
+  id        String   @id @default(cuid())
   userId    String
   user      User     @relation(fields: [userId], references: [id])
   step      String   // "pan" | "aadhaar" | "selfie" | "bank"
@@ -85,7 +85,7 @@ model KycRecord {
 }
 
 model Loan {
-  id              String   @id @default(cuid()) @map("_id")
+  id              String   @id @default(cuid())
   userId          String
   user            User     @relation(fields: [userId], references: [id])
 
@@ -110,7 +110,7 @@ model Loan {
 }
 
 model Repayment {
-  id        String   @id @default(cuid()) @map("_id")
+  id        String   @id @default(cuid())
   loanId    String
   loan      Loan     @relation(fields: [loanId], references: [id])
   amount    Int
@@ -123,7 +123,7 @@ model Repayment {
 }
 
 model Transaction {
-  id        String   @id @default(cuid()) @map("_id")
+  id        String   @id @default(cuid())
   userId    String
   user      User     @relation(fields: [userId], references: [id])
   loanId    String?
@@ -137,7 +137,7 @@ model Transaction {
 }
 
 model LimitHistory {
-  id        String   @id @default(cuid()) @map("_id")
+  id        String   @id @default(cuid())
   userId    String
   user      User     @relation(fields: [userId], references: [id])
   oldLimit  Int
