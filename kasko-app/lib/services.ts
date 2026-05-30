@@ -6,6 +6,7 @@
 import type { PrismaClient } from "@prisma/client";
 import { generateOtp, hashOtp, verifyOtpHash } from "./auth";
 import { sms, bureau, kyc as kycVendor, upi, nbfc } from "./adapters";
+import { twilioConfigured, startVerification, checkVerification } from "./twilio";
 import {
   quote, amountOwed, lateFee, limitFromScore,
   CIBIL_MIN_TO_BORROW, ON_TIME_LIMIT_BUMP, TENURE_DAYS,
@@ -18,6 +19,19 @@ export class DomainError extends Error {
 /* ───────────── AUTH ───────────── */
 export async function requestOtp(db: PrismaClient, phone: string) {
   if (!/^\d{10}$/.test(phone)) throw new DomainError("Enter a valid 10-digit mobile number", "BAD_PHONE");
+
+  // Twilio Verify path: Twilio generates, sends and tracks the code for us.
+  if (twilioConfigured()) {
+    try {
+      await startVerification(phone);
+    } catch (e) {
+      console.error("[twilio] start verification failed:", e);
+      throw new DomainError("Could not send the verification SMS. Try again.", "SMS_SEND_FAILED");
+    }
+    return { sent: true }; // no devCode — the real code is delivered by SMS
+  }
+
+  // Mock/dev path: generate locally, store a hash, "send" via the mock adapter.
   const code = generateOtp();
   const codeHash = hashOtp(phone, code);
   const expiresAt = new Date(Date.now() + 5 * 60 * 1000); // 5 min
@@ -28,6 +42,22 @@ export async function requestOtp(db: PrismaClient, phone: string) {
 }
 
 export async function verifyOtp(db: PrismaClient, phone: string, code: string) {
+  if (!/^\d{4,8}$/.test(code)) throw new DomainError("Enter the code from the SMS.", "BAD_CODE");
+
+  // Twilio Verify path: ask Twilio whether the code is approved.
+  if (twilioConfigured()) {
+    let approved = false;
+    try {
+      approved = await checkVerification(phone, code);
+    } catch (e) {
+      console.error("[twilio] check verification failed:", e);
+      throw new DomainError("Verification failed. Request a new code.", "OTP_CHECK_FAILED");
+    }
+    if (!approved) throw new DomainError("Incorrect or expired code.", "OTP_WRONG");
+    return db.user.upsert({ where: { phone }, update: {}, create: { phone } });
+  }
+
+  // Mock/dev path: validate against the locally stored hash.
   const challenge = await db.otpChallenge.findFirst({
     where: { phone, consumed: false, expiresAt: { gt: new Date() } },
     orderBy: { createdAt: "desc" },
